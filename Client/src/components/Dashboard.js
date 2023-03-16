@@ -18,6 +18,7 @@ import AverageSession from "./AverageSession";
 import Activity from "./Activity";
 import Erreur404 from "./404";
 
+
 // JS Class
 import User from "../class/User";
 
@@ -28,43 +29,50 @@ import chicken from "../design/chicken.svg";
 import cheeseburger from "../design/cheeseburger.svg";
 import apple from "../design/apple.svg";
 
+
 function Dashboard() {
   let { id } = useParams();
   let { userswitch } = useParams();
-  const [userData, setUserData] = useState(false);
+  const [getUserById, setgetUserById] = useState(false);
+  const [getUserActivityById, setgetUserActivityById] = useState({});
+  const [getUserAverageSessionById, setgetUserAverageSessionById] = useState(
+    {}
+  );
+  const [getUserPerformanceById, setgetUserPerformanceById] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadUserData();
-  });
+    const fetch = async (id, userswitch) => {
+      const USER = await getUser(id, userswitch);
+      const ACTIVITY = await getActivity(id, userswitch);
+      const AVERAGE_SESSIONS = await getAverageSessions(id, userswitch);
+      const PERFORMANCE = await getPerformance(id, userswitch);
 
-  if(userData === null || userData === undefined) return <Erreur404/>;
+      setgetUserById(USER);
+      setgetUserActivityById(ACTIVITY);
+      setgetUserAverageSessionById(AVERAGE_SESSIONS);
+      setgetUserPerformanceById(PERFORMANCE);
+      setIsLoading(false);
+    };
+    fetch(id, userswitch);
+  }, [id, userswitch]);
 
-console.log(userData)
-
-  const loadUserData = async () => {
-    const userData = await getUser(id, userswitch);
-    console.log(userData);
-    setUserData(userData);
-    setIsLoading(false);
-  };
-
-  if (userData === null || userData === undefined) return <Erreur404 />;
-
-  console.log(userData);
+  if (getUserById === null || getUserById === undefined) return <Erreur404 />;
 
   const USER_CLASS = !isLoading
     ? new User(
-        userData.USER.userInfos.firstName,
-        userData.USER.userInfos.lastName,
-        userData.USER.userInfos.age,
-        userData.USER?.score ? userData.USER.score : userData.USER.todayScore,
-        userData.USER?.keyData.calorieCount,
-        userData.USER?.keyData.proteinCount,
-        userData.USER?.keyData.carbohydrateCount,
-        userData.USER?.keyData.lipidCount
+        getUserById?.userInfos.firstName,
+        getUserById?.userInfos.lastName,
+        getUserById?.userInfos.age,
+        getUserById?.score ? getUserById.score : getUserById.todayScore,
+        getUserById?.keyData.calorieCount,
+        getUserById?.keyData.proteinCount,
+        getUserById?.keyData.carbohydrateCount,
+        getUserById?.keyData.lipidCount
       )
     : "";
+
+    // Create every graph with data
 
   return (
     <StyledDashboard className="dashboard">
@@ -75,9 +83,9 @@ console.log(userData)
           <HeaderDashboard first={USER_CLASS.firstName} />
           <div className="dashboard__charts">
             <div className="dashboard__charts-left">
-              <Activity userActivityData={userData.ACTIVITY} />
-              <AverageSession averageSessionsData={userData.AVERAGE_SESSION} />
-              <Performance performanceData={userData.PERFORMANCE} />
+              <Activity userActivityData={getUserActivityById} />
+              <AverageSession averageSessionsData={getUserAverageSessionById} />
+              <Performance performanceData={getUserPerformanceById} />
               <Score scoreData={USER_CLASS.arrayOfPercentScore} />
             </div>
             <div className="dashboard__charts-right">
