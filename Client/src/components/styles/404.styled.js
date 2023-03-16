@@ -33,5 +33,5 @@ export const Styled404 = styled.section`
     
     .description-404 {
       font-size: 18px;
-    }
-  }`
+    }`;
+
